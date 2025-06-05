@@ -1,29 +1,30 @@
 // src/api/graphql.ts
 
+/**
+ * Fetch from GraphQL the same way your REST fetch does,
+ * but adapted for Text (small/medium/large), Blog, and now Image|Audio|Video.
+ */
+
 export async function fetchGraphQL(
   service: string,
   size: string
 ): Promise<string | Blob> {
+  // Your HotChocolate endpoint
   const url = 'http://localhost:5244/graphql';
-  const start = performance.now();
 
+  const start = performance.now();
   service = service.toLowerCase();
   size = size.toLowerCase();
 
-  //
-  // ─── BUILD THE QUERY STRING ──────────────────────────────────────────────────────
-  //
   let gqlQuery: string;
 
   switch (service) {
+    // ─── TEXT CASE ─────────────────────────────────────────────────────
     case 'text': {
-      // We expect size ∈ { "small", "medium", "large" }.
       const validSizes = ['small', 'medium', 'large'];
       if (!validSizes.includes(size)) {
         throw new Error(`Invalid text size: ${size}`);
       }
-
-      // The actual GraphQL field name is just “small”/“medium”/“large” (HotChocolate strips “Get”).
       gqlQuery = `
         query {
           ${size} {
@@ -34,13 +35,13 @@ export async function fetchGraphQL(
       break;
     }
 
+    // ─── BLOG CASE ─────────────────────────────────────────────────────
     case 'blog': {
-      // Your schema must have a root field called “blog” (or “getBlog”, depending on how you registered it).
-      // If you wrote [ExtendObjectType(typeof(Query))] public class BlogQuery { public BlogPost[] Blog() … },
-      // then the field is likely named “blog”. Adjust if needed.
+      // We now query `posts { … }` instead of `blog { … }`
       gqlQuery = `
         query {
-          blog {
+          posts {
+            id
             title
             author {
               name
@@ -50,26 +51,31 @@ export async function fetchGraphQL(
               heading
               body
             }
+            media {
+              imageUrl
+              audioUrl
+              videoUrl
+            }
+            metadata {
+              tags
+              wordCount
+            }
+            publishedAt
           }
         }
       `;
       break;
     }
 
+   // ─── MEDIA CASE ────────────────────────────────────────────────────
     case 'media': {
-      // In your C# you probably have something like:
-      //     public MediaPayload GetMedia(string type) { … }
-      // But HotChocolate will register that field as just “media(type: String!)”.
-      // So we call “media(type: "${size}")”
       const validMedia = ['image', 'audio', 'video'];
       if (!validMedia.includes(size)) {
         throw new Error(`Invalid media type: ${size}`);
       }
       gqlQuery = `
         query {
-          media(type: "${size}") {
-            url
-          }
+          ${size}
         }
       `;
       break;
@@ -79,9 +85,7 @@ export async function fetchGraphQL(
       throw new Error(`Unknown service for GraphQL: ${service}`);
   }
 
-  //
-  // ─── SEND THE REQUEST ─────────────────────────────────────────────────────────
-  //
+  // ─── SEND GRAPHQL REQUEST ─────────────────────────────────────────────
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -102,17 +106,14 @@ export async function fetchGraphQL(
       `GraphQL error: ${payload.errors.map((e: any) => e.message).join('; ')}`
     );
   }
+
   const data = payload.data;
 
-  //
-  // ─── PROCESS “TEXT” CASE ──────────────────────────────────────────────────────
-  //
+  // ─── HANDLE TEXT SERVICE ────────────────────────────────────────────────
   if (service === 'text') {
-    // data[size] is { content: string }
     const textContent: string = data[size].content;
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(textContent).length;
-
     return (
       `Response Time: ${timeMs.toFixed(2)} ms\n` +
       `Payload Size: ${byteSize} bytes\n\n` +
@@ -120,21 +121,37 @@ export async function fetchGraphQL(
     );
   }
 
-  //
-  // ─── PROCESS “BLOG” CASE ──────────────────────────────────────────────────────
-  //
+  /// ─── HANDLE BLOG SERVICE ────────────────────────────────────────────────
   if (service === 'blog') {
     type Section = { heading: string; body: string };
     type Author = { name: string; email: string };
-    type BlogPost = { title: string; author: Author; sections: Section[] };
+    type Media = { imageUrl: string | null; audioUrl: string | null; videoUrl: string | null };
+    type Metadata = { tags: string[]; wordCount: number };
+    type BlogPost = {
+      id: number;
+      title: string;
+      author: Author;
+      sections: Section[];
+      media: Media;
+      metadata: Metadata;
+      publishedAt: string;
+    };
 
-    // data.blog is an array of BlogPost
-    const posts: BlogPost[] = data.blog;
+    // Pull "posts" out of the GraphQL response
+    const posts: BlogPost[] = data.posts;
+
+    // Re‐assemble into the same plain‐text format your REST version used
     const content = posts
       .map((p) => {
-        const allSections = p.sections
-          .map((s) => `### ${s.heading}\n${s.body}`)
-          .join('\n\n');
+        // Join all sections as Markdown‐style subsections
+        const allSections =
+          p.sections
+            .map((s) => `### ${s.heading}\n${s.body}`)
+            .join('\n\n');
+
+        // (Optionally, if you care, you could also include media URLs or metadata tags here.
+        //  For parity with your REST formatting, I'm only doing title/author/sections.)
+
         return (
           `Title: ${p.title}\n` +
           `Author: ${p.author.name} <${p.author.email}>\n\n` +
@@ -153,17 +170,57 @@ export async function fetchGraphQL(
     );
   }
 
-  //
-  // ─── PROCESS “MEDIA” CASE ──────────────────────────────────────────────────────
-  //
+
+  // ─── HANDLE MEDIA SERVICE ───────────────────────────────────────────────
   if (service === 'media') {
-    // data.media.url is something like “http://localhost:5244/files/xyz.png”
-    const mediaUrl: string = data.media.url;
-    const mediaResponse = await fetch(mediaUrl);
-    if (!mediaResponse.ok) {
-      throw new Error(`Failed to download media from ${mediaUrl}`);
+    const raw = data[size]; // Could be a URL-safe Base64 string or an array of numbers
+    let blob: Blob;
+
+    if (typeof raw === 'string') {
+      // 1) Convert URL-safe Base64 → standard Base64
+      let base64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+      // Add padding so length % 4 === 0
+      switch (base64.length % 4) {
+        case 2:
+          base64 += '==';
+          break;
+        case 3:
+          base64 += '=';
+          break;
+      }
+      // 2) Decode to a binary string
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // 3) Create a blob with the correct MIME type:
+      if (size === 'image') {
+        // JPG or PNG in your Common project—use "image/jpeg" if it's a JPG
+        blob = new Blob([byteArray], { type: 'image/jpeg' });
+      } else if (size === 'audio') {
+        // WAV
+        blob = new Blob([byteArray], { type: 'audio/wav' });
+      } else {
+        // size === 'video'  → MP4
+        blob = new Blob([byteArray], { type: 'video/mp4' });
+      }
+    } else if (Array.isArray(raw)) {
+      // If raw is already an array of bytes (number[]), directly wrap it
+      const byteArray = new Uint8Array(raw);
+      if (size === 'image') {
+        blob = new Blob([byteArray], { type: 'image/jpeg' });
+      } else if (size === 'audio') {
+        blob = new Blob([byteArray], { type: 'audio/wav' });
+      } else {
+        blob = new Blob([byteArray], { type: 'video/mp4' });
+      }
+    } else {
+      throw new Error('Unexpected media payload format');
     }
-    const blob = await mediaResponse.blob();
+
     const byteSize = blob.size;
     const objectUrl = URL.createObjectURL(blob);
 
