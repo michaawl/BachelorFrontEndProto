@@ -1,0 +1,51 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "GrpcWebApi.Protos";
+package blog;
+
+import "google/protobuf/empty.proto";
+
+// Blog Author
+message Author {
+  string name = 1;
+  string email = 2;
+}
+
+// Blog Section
+message BlogSection {
+  string heading = 1;
+  string body = 2;
+}
+
+// Media block with optional URLs
+message MediaBlock {
+  string imageUrl = 1;
+  string audioUrl = 2;
+  string videoUrl = 3;
+}
+
+// Metadata
+message Metadata {
+  repeated string tags = 1;
+  int32 wordCount = 2;
+}
+
+// A single blog post
+message BlogPost {
+  int32 id = 1;
+  string title = 2;
+  Author author = 3;
+  repeated BlogSection sections = 4;
+  MediaBlock media = 5;
+  Metadata metadata = 6;
+  string publishedAt = 7; // Use ISO8601 string (or google.protobuf.Timestamp if you want)
+}
+
+// Returns all blog posts
+message BlogPostsResponse {
+  repeated BlogPost posts = 1;
+}
+
+service Blog {
+  rpc GetAll (google.protobuf.Empty) returns (BlogPostsResponse);
+}

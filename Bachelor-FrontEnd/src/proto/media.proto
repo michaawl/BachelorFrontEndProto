@@ -1,0 +1,24 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "GrpcWebApi.Protos";
+package media;
+
+// Import the single, well‐known Empty type
+import "google/protobuf/empty.proto";
+
+// The response for any media call
+message MediaResponse {
+  string contentType = 1; // e.g. "image/jpeg", "audio/wav", "video/mp4"
+  bytes  data        = 2; // raw bytes of the embedded media
+}
+
+service Media {
+  // Return the image as bytes + contentType
+  rpc GetImage(google.protobuf.Empty) returns (MediaResponse);
+
+  // Return the audio as bytes + contentType
+  rpc GetAudio(google.protobuf.Empty) returns (MediaResponse);
+
+  // Return the video as bytes + contentType
+  rpc GetVideo(google.protobuf.Empty) returns (MediaResponse);
+}
