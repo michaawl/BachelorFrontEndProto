@@ -12,7 +12,6 @@ export async function fetchGraphQL(
   // Your HotChocolate endpoint
   const url = 'http://localhost:5244/graphql';
 
-  const start = performance.now();
   service = service.toLowerCase();
   size = size.toLowerCase();
 
@@ -85,6 +84,8 @@ export async function fetchGraphQL(
       throw new Error(`Unknown service for GraphQL: ${service}`);
   }
 
+    const start = performance.now();
+    
   // ─── SEND GRAPHQL REQUEST ─────────────────────────────────────────────
   const response = await fetch(url, {
     method: 'POST',

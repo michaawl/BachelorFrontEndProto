@@ -8,18 +8,18 @@ import { Empty } from './generated/google/protobuf/empty';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import type { UnaryCall } from '@protobuf-ts/runtime-rpc';
 
-// Set up the gRPC-Web transport and client
+// Set up the gRPC-Web transport and clients
 const transport = new GrpcWebFetchTransport({
-  baseUrl: 'http://localhost:5109',
+  baseUrl: 'https://localhost:7178',
 });
 const grpcClient = new TextClient(transport);
-const mediaClient = new MediaClient(transport); 
-const blogClient = new BlogClient(transport); 
+const mediaClient = new MediaClient(transport);
+const blogClient = new BlogClient(transport);
 
-fetch("http://localhost:5109/test-cors").then(res => res.text()).then(console.log)
+// Example fetch to test CORS (optional)
+fetch("http://localhost:5109/test-cors").then(res => res.text()).then(console.log);
 
 export async function fetchGrpcWeb(service: string, size: string): Promise<string> {
-  const start = performance.now();
 
   if (service.toLowerCase() === 'text') {
     let grpcMethod: (input: Empty) => UnaryCall<Empty, TextResponse>;
@@ -39,9 +39,8 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
     }
 
     const req = Empty.create();
-
-    // Call the method and get the response (now works with protobuf-ts)
     const call = grpcMethod(req);
+    const start = performance.now();
     const response = await call.response;
 
     const end = performance.now();
@@ -54,7 +53,8 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
     return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${content}`;
   }
 
-    if (service.toLowerCase() === 'media') {
+  if (service.toLowerCase() === 'media') {
+    // UPDATED: Media methods are now UNARY (not streaming)
     let grpcMethod: (input: Empty) => UnaryCall<Empty, MediaResponse>;
 
     switch (size.toLowerCase()) {
@@ -73,21 +73,24 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
 
     const req = Empty.create();
     const call = grpcMethod(req);
+    const start = performance.now();
     const response = await call.response;
+        const end = performance.now();
 
-    const end = performance.now();
-    const timeMs = end - start;
+const contentType = response.contentType || '';
+      const data = response.data ?? new Uint8Array();
 
-    const { data, contentType } = response;
-    // Convert bytes to Blob, then to Object URL
     const blob = new Blob([data], { type: contentType });
     const url = URL.createObjectURL(blob);
+
+    const timeMs = end - start;
 
     return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${blob.size} bytes\nContent-Type: ${contentType}\n\nMedia URL: ${url}`;
   }
 
   if (service.toLowerCase() === 'blog') {
     const call = blogClient.getAll(Empty.create());
+        const start = performance.now();
     const response: BlogPostsResponse = await call.response;
 
     const end = performance.now();

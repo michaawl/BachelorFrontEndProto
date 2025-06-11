@@ -13,32 +13,30 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 /**
- * The response for any media call
- *
  * @generated from protobuf message media.MediaResponse
  */
 export interface MediaResponse {
     /**
-     * @generated from protobuf field: string contentType = 1
+     * @generated from protobuf field: bytes data = 1
      */
-    contentType: string; // e.g. "image/jpeg", "audio/wav", "video/mp4"
+    data: Uint8Array;
     /**
-     * @generated from protobuf field: bytes data = 2
+     * @generated from protobuf field: string content_type = 2
      */
-    data: Uint8Array; // raw bytes of the embedded media
+    contentType: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class MediaResponse$Type extends MessageType<MediaResponse> {
     constructor() {
         super("media.MediaResponse", [
-            { no: 1, name: "contentType", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "data", kind: "scalar", T: 12 /*ScalarType.BYTES*/ }
+            { no: 1, name: "data", kind: "scalar", T: 12 /*ScalarType.BYTES*/ },
+            { no: 2, name: "content_type", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<MediaResponse>): MediaResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.contentType = "";
         message.data = new Uint8Array(0);
+        message.contentType = "";
         if (value !== undefined)
             reflectionMergePartial<MediaResponse>(this, message, value);
         return message;
@@ -48,11 +46,11 @@ class MediaResponse$Type extends MessageType<MediaResponse> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* string contentType */ 1:
-                    message.contentType = reader.string();
-                    break;
-                case /* bytes data */ 2:
+                case /* bytes data */ 1:
                     message.data = reader.bytes();
+                    break;
+                case /* string content_type */ 2:
+                    message.contentType = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -66,12 +64,12 @@ class MediaResponse$Type extends MessageType<MediaResponse> {
         return message;
     }
     internalBinaryWrite(message: MediaResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string contentType = 1; */
-        if (message.contentType !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.contentType);
-        /* bytes data = 2; */
+        /* bytes data = 1; */
         if (message.data.length)
-            writer.tag(2, WireType.LengthDelimited).bytes(message.data);
+            writer.tag(1, WireType.LengthDelimited).bytes(message.data);
+        /* string content_type = 2; */
+        if (message.contentType !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.contentType);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

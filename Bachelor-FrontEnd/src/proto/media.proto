@@ -1,24 +1,115 @@
-﻿syntax = "proto3";
+﻿import { TextClient } from './generated/text.client';
+import { TextResponse } from './generated/text';
+import { MediaClient } from './generated/media.client';
+import { MediaResponse } from './generated/media';
+import { BlogClient } from './generated/blog.client';
+import { BlogPostsResponse } from './generated/blog';
+import { Empty } from './generated/google/protobuf/empty';
+import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
+import type { UnaryCall } from '@protobuf-ts/runtime-rpc';
 
-option csharp_namespace = "GrpcWebApi.Protos";
-package media;
+// Set up the gRPC-Web transport and clients
+const transport = new GrpcWebFetchTransport({
+  baseUrl: 'https://localhost:7178',
+});
+const grpcClient = new TextClient(transport);
+const mediaClient = new MediaClient(transport);
+const blogClient = new BlogClient(transport);
 
-// Import the single, well‐known Empty type
-import "google/protobuf/empty.proto";
+// Example fetch to test CORS (optional)
+fetch("http://localhost:5109/test-cors").then(res => res.text()).then(console.log);
 
-// The response for any media call
-message MediaResponse {
-  string contentType = 1; // e.g. "image/jpeg", "audio/wav", "video/mp4"
-  bytes  data        = 2; // raw bytes of the embedded media
-}
+export async function fetchGrpcWeb(service: string, size: string): Promise<string> {
+  const start = performance.now();
 
-service Media {
-  // Return the image as bytes + contentType
-  rpc GetImage(google.protobuf.Empty) returns (MediaResponse);
+  if (service.toLowerCase() === 'text') {
+    let grpcMethod: (input: Empty) => UnaryCall<Empty, TextResponse>;
 
-  // Return the audio as bytes + contentType
-  rpc GetAudio(google.protobuf.Empty) returns (MediaResponse);
+    switch (size.toLowerCase()) {
+      case 'small':
+        grpcMethod = grpcClient.getSmall.bind(grpcClient);
+        break;
+      case 'medium':
+        grpcMethod = grpcClient.getMedium.bind(grpcClient);
+        break;
+      case 'large':
+        grpcMethod = grpcClient.getLarge.bind(grpcClient);
+        break;
+      default:
+        throw new Error(`Invalid text size: ${size}`);
+    }
 
-  // Return the video as bytes + contentType
-  rpc GetVideo(google.protobuf.Empty) returns (MediaResponse);
+    const req = Empty.create();
+    const call = grpcMethod(req);
+    const response = await call.response;
+
+    const end = performance.now();
+    const timeMs = end - start;
+
+    const content = response.content ?? '';
+    const encoder = new TextEncoder();
+    const byteSize = encoder.encode(content).length;
+
+    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${content}`;
+  }
+
+  if (service.toLowerCase() === 'media') {
+    // UPDATED: Media methods are now UNARY (not streaming)
+    let grpcMethod: (input: Empty) => UnaryCall<Empty, MediaResponse>;
+
+    switch (size.toLowerCase()) {
+      case 'image':
+        grpcMethod = mediaClient.getImage.bind(mediaClient);
+        break;
+      case 'audio':
+        grpcMethod = mediaClient.getAudio.bind(mediaClient);
+        break;
+      case 'video':
+        grpcMethod = mediaClient.getVideo.bind(mediaClient);
+        break;
+      default:
+        throw new Error(`Invalid media type: ${size}`);
+    }
+
+    const req = Empty.create();
+    const call = grpcMethod(req);
+    const response = await call.response;
+
+    const contentType = response.content_type || '';
+    const data = response.data ?? new Uint8Array();
+
+    const blob = new Blob([data], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const end = performance.now();
+    const timeMs = end - start;
+
+    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${blob.size} bytes\nContent-Type: ${contentType}\n\nMedia URL: ${url}`;
+  }
+
+  if (service.toLowerCase() === 'blog') {
+    const call = blogClient.getAll(Empty.create());
+    const response: BlogPostsResponse = await call.response;
+
+    const end = performance.now();
+    const timeMs = end - start;
+
+    const posts = response.posts ?? [];
+    const encoder = new TextEncoder();
+
+    const content = posts.map(p => {
+      const sections = (p.sections ?? []).map(s => `### ${s.heading}\n${s.body}`).join('\n\n');
+      return `Title: ${p.title}
+Author: ${p.author?.name} <${p.author?.email}>
+Published: ${p.publishedAt}
+Tags: ${(p.metadata?.tags ?? []).join(', ')}
+Word Count: ${p.metadata?.wordCount ?? 0}
+
+${sections}`;
+    }).join('\n\n---\n\n');
+
+    const byteSize = encoder.encode(content).length;
+    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\n${content}`;
+  }
+
+  throw new Error(`Service not implemented: ${service}`);
 }

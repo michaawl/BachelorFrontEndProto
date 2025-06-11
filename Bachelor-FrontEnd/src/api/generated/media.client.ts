@@ -14,20 +14,14 @@ import type { RpcOptions } from "@protobuf-ts/runtime-rpc";
  */
 export interface IMediaClient {
     /**
-     * Return the image as bytes + contentType
-     *
      * @generated from protobuf rpc: GetImage
      */
     getImage(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse>;
     /**
-     * Return the audio as bytes + contentType
-     *
      * @generated from protobuf rpc: GetAudio
      */
     getAudio(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse>;
     /**
-     * Return the video as bytes + contentType
-     *
      * @generated from protobuf rpc: GetVideo
      */
     getVideo(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse>;
@@ -42,8 +36,6 @@ export class MediaClient implements IMediaClient, ServiceInfo {
     constructor(private readonly _transport: RpcTransport) {
     }
     /**
-     * Return the image as bytes + contentType
-     *
      * @generated from protobuf rpc: GetImage
      */
     getImage(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse> {
@@ -51,8 +43,6 @@ export class MediaClient implements IMediaClient, ServiceInfo {
         return stackIntercept<Empty, MediaResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * Return the audio as bytes + contentType
-     *
      * @generated from protobuf rpc: GetAudio
      */
     getAudio(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse> {
@@ -60,8 +50,6 @@ export class MediaClient implements IMediaClient, ServiceInfo {
         return stackIntercept<Empty, MediaResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * Return the video as bytes + contentType
-     *
      * @generated from protobuf rpc: GetVideo
      */
     getVideo(input: Empty, options?: RpcOptions): UnaryCall<Empty, MediaResponse> {

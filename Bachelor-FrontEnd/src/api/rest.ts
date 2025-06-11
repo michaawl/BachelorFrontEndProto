@@ -1,5 +1,5 @@
 export async function fetchRest(service: string, size: string): Promise<string | Blob> {
-  let url = `http://localhost:5125/${service.toLowerCase()}/${size.toLowerCase()}`;
+  let url = `https://localhost:7001/${service.toLowerCase()}/${size.toLowerCase()}`;
 
   if (service.toLowerCase() === 'media') {
     const validTypes = ['image', 'audio', 'video'];
@@ -7,12 +7,12 @@ export async function fetchRest(service: string, size: string): Promise<string |
       throw new Error(`Invalid media type: ${size}`);
     }
 
-    url = `http://localhost:5125/media/${size.toLowerCase()}`;
+    url = `https://localhost:7001/media/${size.toLowerCase()}`;
   }
 
   if (service.toLowerCase() === 'blog') {
     // Always get all blog posts
-    url = `http://localhost:5125/api/blog`;
+    url = `https://localhost:7001/api/blog`;
   }
 
   const start = performance.now();
