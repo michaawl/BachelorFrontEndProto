@@ -2,8 +2,8 @@ export async function fetchRest(service: string, size: string): Promise<string |
   let url = `https://localhost:7001/${service.toLowerCase()}/${size.toLowerCase()}`;
 
   if (service.toLowerCase() === 'media') {
-    const validTypes = ['image', 'audio', 'video'];
-    if (!validTypes.includes(size.toLowerCase())) {
+    const serviceType = ['image', 'audio', 'video'];
+    if (!serviceType.includes(size.toLowerCase())) {
       throw new Error(`Invalid media type: ${size}`);
     }
 

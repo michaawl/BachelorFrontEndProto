@@ -8,53 +8,56 @@ import { Empty } from './generated/google/protobuf/empty';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import type { UnaryCall } from '@protobuf-ts/runtime-rpc';
 
-// Set up the gRPC-Web transport and clients
 const transport = new GrpcWebFetchTransport({
   baseUrl: 'https://localhost:7178',
 });
-const grpcClient = new TextClient(transport);
+
+// Define Clients
+const textClient = new TextClient(transport);
 const mediaClient = new MediaClient(transport);
 const blogClient = new BlogClient(transport);
 
-// Example fetch to test CORS (optional)
-fetch("http://localhost:5109/test-cors").then(res => res.text()).then(console.log);
-
 export async function fetchGrpcWeb(service: string, size: string): Promise<string> {
 
+  /// ##### FETCH TEXT #####
+
   if (service.toLowerCase() === 'text') {
+    
     let grpcMethod: (input: Empty) => UnaryCall<Empty, TextResponse>;
 
     switch (size.toLowerCase()) {
       case 'small':
-        grpcMethod = grpcClient.getSmall.bind(grpcClient);
+        grpcMethod = textClient.getSmall.bind(textClient);
         break;
       case 'medium':
-        grpcMethod = grpcClient.getMedium.bind(grpcClient);
+        grpcMethod = textClient.getMedium.bind(textClient);
         break;
       case 'large':
-        grpcMethod = grpcClient.getLarge.bind(grpcClient);
+        grpcMethod = textClient.getLarge.bind(textClient);
         break;
       default:
         throw new Error(`Invalid text size: ${size}`);
     }
 
     const req = Empty.create();
+
     const call = grpcMethod(req);
+
     const start = performance.now();
     const response = await call.response;
-
     const end = performance.now();
-    const timeMs = end - start;
+
+    const timeInMs = end - start;
 
     const content = response.content ?? '';
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
 
-    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${content}`;
+    return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${content}`;
   }
 
+  // ##### FETCH MEDIA #####
   if (service.toLowerCase() === 'media') {
-    // UPDATED: Media methods are now UNARY (not streaming)
     let grpcMethod: (input: Empty) => UnaryCall<Empty, MediaResponse>;
 
     switch (size.toLowerCase()) {
@@ -83,18 +86,19 @@ const contentType = response.contentType || '';
     const blob = new Blob([data], { type: contentType });
     const url = URL.createObjectURL(blob);
 
-    const timeMs = end - start;
+    const timeInMs = end - start;
 
-    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${blob.size} bytes\nContent-Type: ${contentType}\n\nMedia URL: ${url}`;
+    return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${blob.size} bytes\nContent-Type: ${contentType}\n\nMedia URL: ${url}`;
   }
 
+  // #### FETCH BLOG #####
   if (service.toLowerCase() === 'blog') {
     const call = blogClient.getAll(Empty.create());
         const start = performance.now();
     const response: BlogPostsResponse = await call.response;
 
     const end = performance.now();
-    const timeMs = end - start;
+    const timeInMs = end - start;
 
     const posts = response.posts ?? [];
     const encoder = new TextEncoder();
@@ -102,16 +106,16 @@ const contentType = response.contentType || '';
     const content = posts.map(p => {
       const sections = (p.sections ?? []).map(s => `### ${s.heading}\n${s.body}`).join('\n\n');
       return `Title: ${p.title}
-Author: ${p.author?.name} <${p.author?.email}>
-Published: ${p.publishedAt}
-Tags: ${(p.metadata?.tags ?? []).join(', ')}
-Word Count: ${p.metadata?.wordCount ?? 0}
+                Author: ${p.author?.name} <${p.author?.email}>
+                Published: ${p.publishedAt}
+                Tags: ${(p.metadata?.tags ?? []).join(', ')}
+                Word Count: ${p.metadata?.wordCount ?? 0}
 
-${sections}`;
-    }).join('\n\n---\n\n');
+              ${sections}`;
+                  }).join('\n\n');
 
     const byteSize = encoder.encode(content).length;
-    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\n${content}`;
+    return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\n${content}`;
   }
 
   throw new Error(`Service not implemented: ${service}`);

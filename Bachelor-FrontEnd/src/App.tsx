@@ -1,23 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { fetchService, fetchServiceParallel } from './api/dispatcher';
 
 function App() {
-  const [apiType, setApiType] = useState('REST');
-  const [serviceType, setServiceType] = useState('Text');
-  const [payloadSize, setPayloadSize] = useState('large');
-  const [output, setOutput] = useState<string>('');
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'audio' | 'video' | null>(null);
-  const [parallelCount, setParallelCount] = useState(1);
 
+  /// #### State Variablen ####
+
+  const [apiType, setApiType] = useState('REST'); // gibt den API Typen: REST, GraphQL oder gRPC Web
+  const [serviceType, setServiceType] = useState('Text'); // gibt den Service Type an: Test, Media oder Blog
+  const [payloadSize, setPayloadSize] = useState('large'); // Services schicken verschiedene Datengrößen, gibt an wie groß die daten sein sollen
+  const [output, setOutput] = useState<string>(''); // geinhaltet die Daten der Anfrage + Respond Time
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null); // Bei Media Anfrage: Extrahierte Media URL zur Anzeige des Mediums in Output
+  const [mediaType, setMediaType] = useState<'image' | 'audio' | 'video' | null>(null); // Bei dedia Abfrage, können image, audio oder video daten abgefragt werden
+  const [parallelCount, setParallelCount] = useState(1); // es können mehrere parallele requests gesendet werden, gibt Anzahl der zu sendenden Requests an
+
+  // Wird Media ausgewählt oder abgewählt, muss der serviceType geändert werden
+  useEffect(() => {
+  if (serviceType === 'Media') {
+    setPayloadSize('image');
+  } else {
+    setPayloadSize('large');
+  }
+}, [serviceType]);
+
+  // Wird beim Klick auf den Fetch button aufgerufen und für den Response durch
   const handleFetch = async () => {
-    setOutput(`Fetching ${serviceType} (${payloadSize}) via ${apiType}...`);
+    setOutput(`Daten werden geladen: ${serviceType} (${payloadSize}) via ${apiType}...`);
     setMediaUrl(null);
     setMediaType(null);
 
+    // Für parallele Requests
     if (parallelCount > 1) {
       const start = performance.now();
+
       try {
         const results = await fetchServiceParallel(
           apiType,
@@ -25,6 +40,7 @@ function App() {
           payloadSize,
           parallelCount
         );
+
         const end = performance.now();
         const timeMs = end - start;
 
@@ -47,7 +63,7 @@ function App() {
               }
             }
           }
-          resultText += `Request #${idx + 1}\n${typeof result === 'string' ? result : 'Received unknown format'}\n\n---\n\n`;
+          resultText += `Request #${idx + 1}\n${typeof result === 'string' ? result : 'Unbekanntes Format'}\n\n`;
         });
 
         setOutput(
@@ -65,6 +81,7 @@ function App() {
       return;
     }
 
+    // Für einzelne Requests
     try {
       const result = await fetchService(apiType, serviceType, payloadSize);
 
@@ -87,13 +104,13 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'Arial', maxWidth: '600px' }}>
+    <div style={{ padding: '1rem', fontFamily: 'Arial', maxWidth: '600px' }}>
       <h1>API Performance Benchmark</h1>
 
       <div style={{ marginBottom: '1rem' }}>
         <label>
           API Type:
-          <select value={apiType} onChange={(e) => setApiType(e.target.value)} style={{ marginLeft: '0.5rem' }}>
+          <select value={apiType} onChange={(e) => setApiType(e.target.value)} style={{ marginLeft: '1rem' }}>
             <option value="REST">REST</option>
             <option value="GraphQL">GraphQL</option>
             <option value="gRPC-Web">gRPC-Web</option>
@@ -104,7 +121,7 @@ function App() {
       <div style={{ marginBottom: '1rem' }}>
         <label>
           Service Type:
-          <select value={serviceType} onChange={(e) => setServiceType(e.target.value)} style={{ marginLeft: '0.5rem' }}>
+          <select value={serviceType} onChange={(e) => setServiceType(e.target.value)} style={{ marginLeft: '1rem' }}>
             <option value="Text">Text</option>
             <option value="Media">Media</option>
             <option value="Blog">Blog</option>
@@ -163,26 +180,26 @@ function App() {
           value={output}
           readOnly
           rows={10}
-          style={{ width: '100%', marginTop: '0.5rem', resize: 'none' }}
+          style={{ width: '100%', marginTop: '1rem', resize: 'none' }}
         />
       </div>
 
       {mediaUrl && mediaType === 'image' && (
-        <div style={{ marginTop: '1rem' }}>
+        <div>
           <label>Image Preview:</label>
           <img src={mediaUrl} alt="Preview" style={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }} />
         </div>
       )}
 
       {mediaUrl && mediaType === 'audio' && (
-        <div style={{ marginTop: '1rem' }}>
+        <div>
           <label>Audio Preview:</label>
           <audio controls src={mediaUrl} style={{ width: '100%' }} />
         </div>
       )}
 
       {mediaUrl && mediaType === 'video' && (
-        <div style={{ marginTop: '1rem' }}>
+        <div>
           <label>Video Preview:</label>
           <video controls src={mediaUrl} style={{ width: '100%', maxHeight: '400px' }} />
         </div>

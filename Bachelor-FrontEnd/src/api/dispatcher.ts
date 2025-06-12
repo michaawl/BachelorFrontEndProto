@@ -2,6 +2,7 @@ import { fetchRest } from './rest';
 import { fetchGraphQL } from './graphql';
 import { fetchGrpcWeb } from './grpcweb';
 
+//führt den request an einen der services aus
 export async function fetchService(
   api: string,
   service: string,
@@ -15,11 +16,11 @@ export async function fetchService(
     case 'gRPC-Web':
       return await fetchGrpcWeb(service, size);
     default:
-      throw new Error(`Unknown API type: ${api}`);
+      throw new Error(`Unbekannter API Typ: ${api}`);
   }
 }
 
-// Parallel helper for N requests at once!
+// Führt mittels Promise.all die Parallelen requests aus
 export async function fetchServiceParallel(
   api: string,
   service: string,

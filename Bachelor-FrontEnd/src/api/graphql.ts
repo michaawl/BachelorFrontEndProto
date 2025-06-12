@@ -1,24 +1,20 @@
-// src/api/graphql.ts
-
-/**
- * Fetch from GraphQL the same way your REST fetch does,
- * but adapted for Text (small/medium/large), Blog, and now Image|Audio|Video.
- */
-
 export async function fetchGraphQL(
   service: string,
   size: string
 ): Promise<string | Blob> {
-  // Your HotChocolate endpoint
+
+  // Define URL
   const url = 'http://localhost:5244/graphql';
 
   service = service.toLowerCase();
   size = size.toLowerCase();
 
+  // Define query
+
   let gqlQuery: string;
 
   switch (service) {
-    // ─── TEXT CASE ─────────────────────────────────────────────────────
+    // ##### TEXT QUERY #####
     case 'text': {
       const validSizes = ['small', 'medium', 'large'];
       if (!validSizes.includes(size)) {
@@ -34,9 +30,9 @@ export async function fetchGraphQL(
       break;
     }
 
-    // ─── BLOG CASE ─────────────────────────────────────────────────────
+    // ##### BLOG QUERY #####
+
     case 'blog': {
-      // We now query `posts { … }` instead of `blog { … }`
       gqlQuery = `
         query {
           posts {
@@ -66,7 +62,8 @@ export async function fetchGraphQL(
       break;
     }
 
-   // ─── MEDIA CASE ────────────────────────────────────────────────────
+   // ##### MEDIA QUERY #####
+
     case 'media': {
       const validMedia = ['image', 'audio', 'video'];
       if (!validMedia.includes(size)) {
@@ -84,9 +81,11 @@ export async function fetchGraphQL(
       throw new Error(`Unknown service for GraphQL: ${service}`);
   }
 
-    const start = performance.now();
+  
+  // Fetch Data
+
+  const start = performance.now();
     
-  // ─── SEND GRAPHQL REQUEST ─────────────────────────────────────────────
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -94,35 +93,33 @@ export async function fetchGraphQL(
   });
 
   const end = performance.now();
-  const timeMs = end - start;
+
+  const timeInMs = end - start;
 
   if (!response.ok) {
     throw new Error(`GraphQL fetch failed with status ${response.status}`);
   }
 
   const payload = await response.json();
-  if (payload.errors && Array.isArray(payload.errors)) {
-    console.error('GraphQL errors:', payload.errors);
-    throw new Error(
-      `GraphQL error: ${payload.errors.map((e: any) => e.message).join('; ')}`
-    );
-  }
 
   const data = payload.data;
 
-  // ─── HANDLE TEXT SERVICE ────────────────────────────────────────────────
+
+  // ##### HANDLE TEXT DATA #####
+
   if (service === 'text') {
     const textContent: string = data[size].content;
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(textContent).length;
     return (
-      `Response Time: ${timeMs.toFixed(2)} ms\n` +
+      `Response Time: ${timeInMs.toFixed(2)} ms\n` +
       `Payload Size: ${byteSize} bytes\n\n` +
       `Payload:\n${textContent}`
     );
   }
 
-  /// ─── HANDLE BLOG SERVICE ────────────────────────────────────────────────
+  // ##### HANDLE BLOG DATA ##### 
+
   if (service === 'blog') {
     type Section = { heading: string; body: string };
     type Author = { name: string; email: string };
@@ -138,20 +135,14 @@ export async function fetchGraphQL(
       publishedAt: string;
     };
 
-    // Pull "posts" out of the GraphQL response
     const posts: BlogPost[] = data.posts;
 
-    // Re‐assemble into the same plain‐text format your REST version used
     const content = posts
       .map((p) => {
-        // Join all sections as Markdown‐style subsections
         const allSections =
           p.sections
             .map((s) => `### ${s.heading}\n${s.body}`)
-            .join('\n\n');
-
-        // (Optionally, if you care, you could also include media URLs or metadata tags here.
-        //  For parity with your REST formatting, I'm only doing title/author/sections.)
+            .join('\n');
 
         return (
           `Title: ${p.title}\n` +
@@ -159,78 +150,49 @@ export async function fetchGraphQL(
           allSections
         );
       })
-      .join('\n\n---\n\n');
+      .join('\n');
 
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
 
     return (
-      `Response Time: ${timeMs.toFixed(2)} ms\n` +
+      `Response Time: ${timeInMs.toFixed(2)} ms\n` +
       `Payload Size: ${byteSize} bytes\n\n` +
       content
     );
   }
 
 
-  // ─── HANDLE MEDIA SERVICE ───────────────────────────────────────────────
+    // ##### HANDLE MEDIA DATA #####
   if (service === 'media') {
-    const raw = data[size]; // Could be a URL-safe Base64 string or an array of numbers
-    let blob: Blob;
+    const raw = data[size];
+    let byteArray: Uint8Array;
 
     if (typeof raw === 'string') {
-      // 1) Convert URL-safe Base64 → standard Base64
-      let base64 = raw.replace(/-/g, '+').replace(/_/g, '/');
-      // Add padding so length % 4 === 0
-      switch (base64.length % 4) {
-        case 2:
-          base64 += '==';
-          break;
-        case 3:
-          base64 += '=';
-          break;
-      }
-      // 2) Decode to a binary string
-      const byteCharacters = atob(base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-
-      // 3) Create a blob with the correct MIME type:
-      if (size === 'image') {
-        // JPG or PNG in your Common project—use "image/jpeg" if it's a JPG
-        blob = new Blob([byteArray], { type: 'image/jpeg' });
-      } else if (size === 'audio') {
-        // WAV
-        blob = new Blob([byteArray], { type: 'audio/wav' });
-      } else {
-        // size === 'video'  → MP4
-        blob = new Blob([byteArray], { type: 'video/mp4' });
-      }
+      let fixedBase64 = raw.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+      while (fixedBase64.length % 4) fixedBase64 += '=';
+      byteArray = Uint8Array.from(atob(fixedBase64), c => c.charCodeAt(0));
     } else if (Array.isArray(raw)) {
-      // If raw is already an array of bytes (number[]), directly wrap it
-      const byteArray = new Uint8Array(raw);
-      if (size === 'image') {
-        blob = new Blob([byteArray], { type: 'image/jpeg' });
-      } else if (size === 'audio') {
-        blob = new Blob([byteArray], { type: 'audio/wav' });
-      } else {
-        blob = new Blob([byteArray], { type: 'video/mp4' });
-      }
+      byteArray = new Uint8Array(raw);
     } else {
-      throw new Error('Unexpected media payload format');
+      throw new Error(`Unexpected media type: ${typeof raw}`);
     }
 
-    const byteSize = blob.size;
-    const objectUrl = URL.createObjectURL(blob);
+  const mime = size === 'image' ? 'image/jpeg'
+    : size === 'audio' ? 'audio/wav'
+    : size === 'video' ? 'video/mp4'
+    : 'application/octet-stream';
 
-    return (
-      `Response Time: ${timeMs.toFixed(2)} ms\n` +
-      `Payload Size: ${byteSize} bytes\n\n` +
-      `Media URL: ${objectUrl}`
-    );
-  }
+  const blob = new Blob([byteArray], { type: mime });
+  const byteSize = blob.size;
+  const objectUrl = URL.createObjectURL(blob);
 
-  throw new Error('Unreachable: unknown service');
+  return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nMedia URL: ${objectUrl}`;
+}
+
+
+
+
+
+  throw new Error('Service unbekannt');
 }
