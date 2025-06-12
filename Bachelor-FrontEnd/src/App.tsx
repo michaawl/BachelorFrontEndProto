@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
-import { fetchService } from './api/dispatcher.ts';
+import { fetchService, fetchServiceParallel } from './api/dispatcher';
 
 function App() {
   const [apiType, setApiType] = useState('REST');
@@ -9,36 +9,74 @@ function App() {
   const [output, setOutput] = useState<string>('');
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'audio' | 'video' | null>(null);
-
-  // Reset payload size when switching service type
-  useEffect(() => {
-    if (serviceType === 'Media') {
-      setPayloadSize('image');
-    } else {
-      setPayloadSize('large');
-    }
-  }, [serviceType]);
+  const [parallelCount, setParallelCount] = useState(1);
 
   const handleFetch = async () => {
     setOutput(`Fetching ${serviceType} (${payloadSize}) via ${apiType}...`);
     setMediaUrl(null);
     setMediaType(null);
 
+    if (parallelCount > 1) {
+      const start = performance.now();
+      try {
+        const results = await fetchServiceParallel(
+          apiType,
+          serviceType,
+          payloadSize,
+          parallelCount
+        );
+        const end = performance.now();
+        const timeMs = end - start;
+
+        let resultText = '';
+        let firstMediaUrl: string | null = null;
+        let firstMediaType: 'image' | 'audio' | 'video' | null = null;
+
+        results.forEach((result: string | Blob, idx) => {
+          if (
+            typeof result === 'string' &&
+            serviceType.toLowerCase() === 'media' &&
+            result.includes('Media URL:')
+          ) {
+            const url = result.split('Media URL: ')[1].trim();
+            if (!firstMediaUrl) {
+              firstMediaUrl = url;
+              const type = payloadSize.toLowerCase();
+              if (type === 'image' || type === 'audio' || type === 'video') {
+                firstMediaType = type as 'image' | 'audio' | 'video';
+              }
+            }
+          }
+          resultText += `Request #${idx + 1}\n${typeof result === 'string' ? result : 'Received unknown format'}\n\n---\n\n`;
+        });
+
+        setOutput(
+          `Parallel fetch (${parallelCount} requests):\nTotal Time: ${timeMs.toFixed(2)} ms\n\n` +
+            resultText.trim()
+        );
+
+        if (firstMediaUrl && firstMediaType) {
+          setMediaType(firstMediaType);
+          setMediaUrl(firstMediaUrl);
+        }
+      } catch (err) {
+        setOutput(`Error: ${String(err)}`);
+      }
+      return;
+    }
+
     try {
       const result = await fetchService(apiType, serviceType, payloadSize);
 
       if (typeof result === 'string') {
-        // Media handling
         if (serviceType.toLowerCase() === 'media' && result.includes('Media URL:')) {
           const url = result.split('Media URL: ')[1].trim();
           const type = payloadSize.toLowerCase();
-
           if (type === 'image' || type === 'audio' || type === 'video') {
             setMediaType(type as 'image' | 'audio' | 'video');
             setMediaUrl(url);
           }
         }
-
         setOutput(result);
       } else {
         setOutput('Received unknown format');
@@ -75,32 +113,45 @@ function App() {
       </div>
 
       {serviceType !== 'Blog' && (
-  <div style={{ marginBottom: '1rem' }}>
-    <label>
-      {serviceType === 'Media' ? 'Media Type:' : 'Payload Size:'}
-      <select
-        value={payloadSize}
-        onChange={(e) => setPayloadSize(e.target.value)}
-        style={{ marginLeft: '0.5rem' }}
-      >
-        {serviceType === 'Media' ? (
-          <>
-            <option value="image">Image</option>
-            <option value="audio">Audio</option>
-            <option value="video">Video</option>
-          </>
-        ) : (
-          <>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-          </>
-        )}
-      </select>
-    </label>
-  </div>
-)}
+        <div style={{ marginBottom: '1rem' }}>
+          <label>
+            {serviceType === 'Media' ? 'Media Type:' : 'Payload Size:'}
+            <select
+              value={payloadSize}
+              onChange={(e) => setPayloadSize(e.target.value)}
+              style={{ marginLeft: '0.5rem' }}
+            >
+              {serviceType === 'Media' ? (
+                <>
+                  <option value="image">Image</option>
+                  <option value="audio">Audio</option>
+                  <option value="video">Video</option>
+                </>
+              ) : (
+                <>
+                  <option value="small">Small</option>
+                  <option value="medium">Medium</option>
+                  <option value="large">Large</option>
+                </>
+              )}
+            </select>
+          </label>
+        </div>
+      )}
 
+      <div style={{ marginBottom: '1rem' }}>
+        <label>
+          Parallel Requests:&nbsp;
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={parallelCount}
+            onChange={e => setParallelCount(Number(e.target.value))}
+            style={{ width: '4rem' }}
+          />
+        </label>
+      </div>
 
       <button onClick={handleFetch} style={{ marginBottom: '1rem' }}>
         Fetch
@@ -116,7 +167,6 @@ function App() {
         />
       </div>
 
-      {/* Media previews */}
       {mediaUrl && mediaType === 'image' && (
         <div style={{ marginTop: '1rem' }}>
           <label>Image Preview:</label>

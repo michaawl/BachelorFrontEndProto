@@ -1,8 +1,12 @@
 import { fetchRest } from './rest';
 import { fetchGraphQL } from './graphql';
-import  { fetchGrpcWeb } from './grpcweb';
+import { fetchGrpcWeb } from './grpcweb';
 
-export async function fetchService(api: string, service: string, size: string): Promise<string | Blob> {
+export async function fetchService(
+  api: string,
+  service: string,
+  size: string
+): Promise<string | Blob> {
   switch (api) {
     case 'REST':
       return await fetchRest(service, size);
@@ -13,4 +17,16 @@ export async function fetchService(api: string, service: string, size: string): 
     default:
       throw new Error(`Unknown API type: ${api}`);
   }
+}
+
+// Parallel helper for N requests at once!
+export async function fetchServiceParallel(
+  api: string,
+  service: string,
+  size: string,
+  count: number
+): Promise<Array<string | Blob>> {
+  return await Promise.all(
+    Array.from({ length: count }, () => fetchService(api, service, size))
+  );
 }
