@@ -1,0 +1,139 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\grpcbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:grpcbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\grpcwebbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:grpcwebbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\restbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:restbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\graphqlbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:graphqlbenchmarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\apibenchmarkclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:apibenchmarkclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|c:\\users\\micha\\desktop\\grpc client\\apibenchmarkclient\\protos\\media.proto||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{0CB475A8-0607-8F8E-6CE6-1BB4CFB18590}|ApiBenchmarkClient.csproj|solutionrelative:protos\\media.proto||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GrpcBenchmarker.cs",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GrpcBenchmarker.cs",
+              "RelativeDocumentMoniker": "GrpcBenchmarker.cs",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GrpcBenchmarker.cs",
+              "RelativeToolTip": "GrpcBenchmarker.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAAAAAIgAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T22:37:59.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GrpcWebBenchmarker.cs",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GrpcWebBenchmarker.cs",
+              "RelativeDocumentMoniker": "GrpcWebBenchmarker.cs",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GrpcWebBenchmarker.cs",
+              "RelativeToolTip": "GrpcWebBenchmarker.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAAAAAHcAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T10:04:34.94Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GraphQlBenchmarker.cs",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GraphQlBenchmarker.cs",
+              "RelativeDocumentMoniker": "GraphQlBenchmarker.cs",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\GraphQlBenchmarker.cs",
+              "RelativeToolTip": "GraphQlBenchmarker.cs",
+              "ViewState": "AgIAAMYAAAAAAAAAAAAQwNUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T22:38:12.071Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "RestBenchmarker.cs",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\RestBenchmarker.cs",
+              "RelativeDocumentMoniker": "RestBenchmarker.cs",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\RestBenchmarker.cs",
+              "RelativeToolTip": "RestBenchmarker.cs",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAowJoAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T23:46:00.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBoAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T22:28:53.042Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ApiBenchmarkClient.csproj",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
+              "RelativeDocumentMoniker": "ApiBenchmarkClient.csproj",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
+              "RelativeToolTip": "ApiBenchmarkClient.csproj",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAswBkAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-06-14T10:41:03.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "media.proto",
+              "DocumentMoniker": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\Protos\\media.proto",
+              "RelativeDocumentMoniker": "Protos\\media.proto",
+              "ToolTip": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\Protos\\media.proto",
+              "RelativeToolTip": "Protos\\media.proto",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003853|",
+              "WhenOpened": "2025-06-14T18:42:55.859Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

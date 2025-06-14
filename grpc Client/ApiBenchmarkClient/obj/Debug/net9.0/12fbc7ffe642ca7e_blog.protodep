@@ -1,0 +1,4 @@
+obj\Debug\net9.0\Protos/Blog.cs \
+obj\Debug\net9.0\Protos/BlogGrpc.cs: C:/Users/micha/.nuget/packages/grpc.tools/2.72.0/build/native/include/google/protobuf/empty.proto\
+ C:/Users/micha/.nuget/packages/grpc.tools/2.72.0/build/native/include/google/protobuf/timestamp.proto\
+ Protos/blog.proto

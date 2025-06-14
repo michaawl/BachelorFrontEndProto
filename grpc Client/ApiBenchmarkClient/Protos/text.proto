@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "GrpcWebApi.Protos";
+package text;
+
+import "google/protobuf/empty.proto";
+
+message TextResponse {
+  string content = 1;
+}
+
+service Text {
+  rpc GetSmall (google.protobuf.Empty) returns (TextResponse);
+  rpc GetMedium(google.protobuf.Empty) returns (TextResponse);
+  rpc GetLarge (google.protobuf.Empty) returns (TextResponse);
+
+}

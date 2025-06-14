@@ -4,7 +4,7 @@ export async function fetchGraphQL(
 ): Promise<string | Blob> {
 
   // Define URL
-  const url = 'http://localhost:5244/graphql';
+  const url = 'https://localhost:7046/graphql';
 
   service = service.toLowerCase();
   size = size.toLowerCase();
@@ -38,23 +38,10 @@ export async function fetchGraphQL(
           posts {
             id
             title
-            author {
-              name
-              email
-            }
-            sections {
-              heading
-              body
-            }
-            media {
-              imageUrl
-              audioUrl
-              videoUrl
-            }
-            metadata {
-              tags
-              wordCount
-            }
+            author { name email }
+            sections { heading body }
+            numbers { numberOne numberTwo numberThree numberFour }
+            metadata { tags wordCount }
             publishedAt
           }
         }
@@ -120,46 +107,47 @@ export async function fetchGraphQL(
 
   // ##### HANDLE BLOG DATA ##### 
 
-  if (service === 'blog') {
+ if (service === 'blog') {
     type Section = { heading: string; body: string };
     type Author = { name: string; email: string };
-    type Media = { imageUrl: string | null; audioUrl: string | null; videoUrl: string | null };
+    type Numbers = { numberOne: number; numberTwo: number; numberThree: number; numberFour: number };
     type Metadata = { tags: string[]; wordCount: number };
-    type BlogPost = {
+    type Post = {
       id: number;
       title: string;
       author: Author;
       sections: Section[];
-      media: Media;
+      numbers: Numbers;
       metadata: Metadata;
       publishedAt: string;
     };
 
-    const posts: BlogPost[] = data.posts;
-
-    const content = posts
-      .map((p) => {
-        const allSections =
-          p.sections
-            .map((s) => `### ${s.heading}\n${s.body}`)
-            .join('\n');
-
-        return (
-          `Title: ${p.title}\n` +
-          `Author: ${p.author.name} <${p.author.email}>\n\n` +
-          allSections
-        );
-      })
-      .join('\n');
-
-    const encoder = new TextEncoder();
-    const byteSize = encoder.encode(content).length;
-
-    return (
-      `Response Time: ${timeInMs.toFixed(2)} ms\n` +
-      `Payload Size: ${byteSize} bytes\n\n` +
-      content
-    );
+    const posts: Post[] = data.posts;
+    const lines: string[] = [];
+    for (const p of posts) {
+      lines.push(`Id: ${p.id}`);
+      lines.push(`Title: ${p.title}`);
+      lines.push(`Author: ${p.author.name} <${p.author.email}>`);
+      lines.push(`PublishedAt: ${p.publishedAt}`);
+      for (const s of p.sections) {
+        lines.push(`\n### ${s.heading}`);
+        lines.push(s.body);
+      }
+      lines.push(`\nNumbers:`);
+      lines.push(`  NumberOne: ${p.numbers.numberOne}`);
+      lines.push(`  NumberTwo: ${p.numbers.numberTwo}`);
+      lines.push(`  NumberThree: ${p.numbers.numberThree}`);
+      lines.push(`  NumberFour: ${p.numbers.numberFour}`);
+      lines.push(`\nMetadata:`);
+      lines.push(`  Tags: ${p.metadata.tags.join(', ')}`);
+      lines.push(`  WordCount: ${p.metadata.wordCount}`);
+      lines.push('\n---');
+    }
+    const content = lines.join('\n');
+    const byteSize = new TextEncoder().encode(content).length;
+    return `Response Time: ${timeInMs} ms\n` +
+           `Payload Size: ${byteSize} bytes\n\n` +
+           content;
   }
 
 
@@ -189,10 +177,6 @@ export async function fetchGraphQL(
 
   return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nMedia URL: ${objectUrl}`;
 }
-
-
-
-
 
   throw new Error('Service unbekannt');
 }

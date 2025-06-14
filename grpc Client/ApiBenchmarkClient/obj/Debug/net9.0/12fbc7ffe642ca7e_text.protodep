@@ -1,0 +1,3 @@
+obj\Debug\net9.0\Protos/Text.cs \
+obj\Debug\net9.0\Protos/TextGrpc.cs: C:/Users/micha/.nuget/packages/grpc.tools/2.72.0/build/native/include/google/protobuf/empty.proto\
+ Protos/text.proto

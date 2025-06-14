@@ -1,9 +1,11 @@
 export async function fetchRest(service: string, size: string): Promise<string | Blob> {
+  
+  // Define URL
   let url = `https://localhost:7001/${service.toLowerCase()}/${size.toLowerCase()}`;
 
   if (service.toLowerCase() === 'media') {
-    const serviceType = ['image', 'audio', 'video'];
-    if (!serviceType.includes(size.toLowerCase())) {
+    const mediaType = ['image', 'audio', 'video'];
+    if (!mediaType.includes(size.toLowerCase())) {
       throw new Error(`Invalid media type: ${size}`);
     }
 
@@ -11,49 +13,83 @@ export async function fetchRest(service: string, size: string): Promise<string |
   }
 
   if (service.toLowerCase() === 'blog') {
-    // Always get all blog posts
     url = `https://localhost:7001/api/blog`;
   }
+
+  // Fetch data 
 
   const start = performance.now();
   const response = await fetch(url);
   const end = performance.now();
 
-  const timeMs = end - start;
+  const timeInMs = end - start;
 
   if (!response.ok) {
     throw new Error(`REST fetch failed with status ${response.status}`);
   }
 
-  /// TEXT
-
+  /// Parse TEXT
   if (service.toLowerCase() === 'text') {
     const json = await response.json();
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(json.content).length;
 
-    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${json.content}`;
+    return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nPayload:\n${json.content}`;
   }
 
-  /// BLOG
+// PARSE BLOG
   if (service.toLowerCase() === 'blog') {
-    const posts = await response.json();
-    const encoder = new TextEncoder();
+    const startBlog = performance.now();
+    const posts: any[] = await response.json();
+    const lines: string[] = [];
 
-    const content = posts.map((p: any) => {
-      const sections = p.sections.map((s: any) => `### ${s.heading}\n${s.body}`).join('\n\n');
-      return `Title: ${p.title}\nAuthor: ${p.author.name} <${p.author.email}>\n\n${sections}`;
-    }).join('\n\n---\n\n');
+    for (const p of posts) {
+      lines.push(`Id: ${p.id}`);
+      lines.push(`Title: ${p.title}`);
+      if (p.author) {
+        lines.push(`Author: ${p.author.name} <${p.author.email}>`);
+      }
+      if (p.publishedAt) {
+        lines.push(`PublishedAt: ${p.publishedAt}`);
+      }
 
-    const byteSize = encoder.encode(content).length;
+      if (Array.isArray(p.sections)) {
+        for (const s of p.sections) {
+          lines.push(`\n### ${s.heading}`);
+          lines.push(s.body);
+        }
+      }
 
-    return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\n${content}`;
+      if (p.numbers) {
+        lines.push(`\nNumbers:`);
+        lines.push(`  NumberOne: ${p.numbers.numberOne}`);
+        lines.push(`  NumberTwo: ${p.numbers.numberTwo}`);
+        lines.push(`  NumberThree: ${p.numbers.numberThree}`);
+        lines.push(`  NumberFour: ${p.numbers.numberFour}`);
+      }
+
+      if (p.metadata) {
+        lines.push(`\nMetadata:`);
+        lines.push(`  Tags: ${(p.metadata.tags ?? []).join(', ')}`);
+        lines.push(`  WordCount: ${p.metadata.wordCount}`);
+      }
+
+      lines.push('\n---');
+    }
+
+    const content = lines.join('\n');
+    const byteSize = new TextEncoder().encode(content).length;
+    const blogTime = (performance.now() - startBlog).toFixed(2);
+
+    return `Response Time: ${blogTime} ms\n` +
+           `Payload Size: ${byteSize} bytes\n\n` +
+           content;
   }
 
-  /// MEDIA
+  /// Parse MEDIA
   const blob = await response.blob();
   const byteSize = blob.size;
   const objectUrl = URL.createObjectURL(blob);
 
-  return `Response Time: ${timeMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nMedia URL: ${objectUrl}`;
+  return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nMedia URL: ${objectUrl}`;
 }
