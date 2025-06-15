@@ -12,6 +12,7 @@ import { UnknownFieldHandler } from "@protobuf-ts/runtime";
 import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
+import { Timestamp } from "./google/protobuf/timestamp";
 /**
  * Blog Author
  *
@@ -43,23 +44,27 @@ export interface BlogSection {
     body: string;
 }
 /**
- * Media block with optional URLs
+ * Numbers Block
  *
- * @generated from protobuf message blog.MediaBlock
+ * @generated from protobuf message blog.NumbersBlock
  */
-export interface MediaBlock {
+export interface NumbersBlock {
     /**
-     * @generated from protobuf field: string imageUrl = 1
+     * @generated from protobuf field: int32 numberOne = 1
      */
-    imageUrl: string;
+    numberOne: number;
     /**
-     * @generated from protobuf field: string audioUrl = 2
+     * @generated from protobuf field: int32 numberTwo = 2
      */
-    audioUrl: string;
+    numberTwo: number;
     /**
-     * @generated from protobuf field: string videoUrl = 3
+     * @generated from protobuf field: int32 numberThree = 3
      */
-    videoUrl: string;
+    numberThree: number;
+    /**
+     * @generated from protobuf field: int32 numberFour = 4
+     */
+    numberFour: number;
 }
 /**
  * Metadata
@@ -99,17 +104,17 @@ export interface BlogPost {
      */
     sections: BlogSection[];
     /**
-     * @generated from protobuf field: blog.MediaBlock media = 5
+     * @generated from protobuf field: blog.NumbersBlock numbers = 5
      */
-    media?: MediaBlock;
+    numbers?: NumbersBlock;
     /**
      * @generated from protobuf field: blog.Metadata metadata = 6
      */
     metadata?: Metadata;
     /**
-     * @generated from protobuf field: string publishedAt = 7
+     * @generated from protobuf field: google.protobuf.Timestamp publishedAt = 7
      */
-    publishedAt: string; // Use ISO8601 string (or google.protobuf.Timestamp if you want)
+    publishedAt?: Timestamp;
 }
 /**
  * Returns all blog posts
@@ -233,36 +238,41 @@ class BlogSection$Type extends MessageType<BlogSection> {
  */
 export const BlogSection = new BlogSection$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class MediaBlock$Type extends MessageType<MediaBlock> {
+class NumbersBlock$Type extends MessageType<NumbersBlock> {
     constructor() {
-        super("blog.MediaBlock", [
-            { no: 1, name: "imageUrl", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "audioUrl", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "videoUrl", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        super("blog.NumbersBlock", [
+            { no: 1, name: "numberOne", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "numberTwo", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "numberThree", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 4, name: "numberFour", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
         ]);
     }
-    create(value?: PartialMessage<MediaBlock>): MediaBlock {
+    create(value?: PartialMessage<NumbersBlock>): NumbersBlock {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.imageUrl = "";
-        message.audioUrl = "";
-        message.videoUrl = "";
+        message.numberOne = 0;
+        message.numberTwo = 0;
+        message.numberThree = 0;
+        message.numberFour = 0;
         if (value !== undefined)
-            reflectionMergePartial<MediaBlock>(this, message, value);
+            reflectionMergePartial<NumbersBlock>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: MediaBlock): MediaBlock {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: NumbersBlock): NumbersBlock {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* string imageUrl */ 1:
-                    message.imageUrl = reader.string();
+                case /* int32 numberOne */ 1:
+                    message.numberOne = reader.int32();
                     break;
-                case /* string audioUrl */ 2:
-                    message.audioUrl = reader.string();
+                case /* int32 numberTwo */ 2:
+                    message.numberTwo = reader.int32();
                     break;
-                case /* string videoUrl */ 3:
-                    message.videoUrl = reader.string();
+                case /* int32 numberThree */ 3:
+                    message.numberThree = reader.int32();
+                    break;
+                case /* int32 numberFour */ 4:
+                    message.numberFour = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -275,16 +285,19 @@ class MediaBlock$Type extends MessageType<MediaBlock> {
         }
         return message;
     }
-    internalBinaryWrite(message: MediaBlock, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string imageUrl = 1; */
-        if (message.imageUrl !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.imageUrl);
-        /* string audioUrl = 2; */
-        if (message.audioUrl !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.audioUrl);
-        /* string videoUrl = 3; */
-        if (message.videoUrl !== "")
-            writer.tag(3, WireType.LengthDelimited).string(message.videoUrl);
+    internalBinaryWrite(message: NumbersBlock, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* int32 numberOne = 1; */
+        if (message.numberOne !== 0)
+            writer.tag(1, WireType.Varint).int32(message.numberOne);
+        /* int32 numberTwo = 2; */
+        if (message.numberTwo !== 0)
+            writer.tag(2, WireType.Varint).int32(message.numberTwo);
+        /* int32 numberThree = 3; */
+        if (message.numberThree !== 0)
+            writer.tag(3, WireType.Varint).int32(message.numberThree);
+        /* int32 numberFour = 4; */
+        if (message.numberFour !== 0)
+            writer.tag(4, WireType.Varint).int32(message.numberFour);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -292,9 +305,9 @@ class MediaBlock$Type extends MessageType<MediaBlock> {
     }
 }
 /**
- * @generated MessageType for protobuf message blog.MediaBlock
+ * @generated MessageType for protobuf message blog.NumbersBlock
  */
-export const MediaBlock = new MediaBlock$Type();
+export const NumbersBlock = new NumbersBlock$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Metadata$Type extends MessageType<Metadata> {
     constructor() {
@@ -358,9 +371,9 @@ class BlogPost$Type extends MessageType<BlogPost> {
             { no: 2, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "author", kind: "message", T: () => Author },
             { no: 4, name: "sections", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => BlogSection },
-            { no: 5, name: "media", kind: "message", T: () => MediaBlock },
+            { no: 5, name: "numbers", kind: "message", T: () => NumbersBlock },
             { no: 6, name: "metadata", kind: "message", T: () => Metadata },
-            { no: 7, name: "publishedAt", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 7, name: "publishedAt", kind: "message", T: () => Timestamp }
         ]);
     }
     create(value?: PartialMessage<BlogPost>): BlogPost {
@@ -368,7 +381,6 @@ class BlogPost$Type extends MessageType<BlogPost> {
         message.id = 0;
         message.title = "";
         message.sections = [];
-        message.publishedAt = "";
         if (value !== undefined)
             reflectionMergePartial<BlogPost>(this, message, value);
         return message;
@@ -390,14 +402,14 @@ class BlogPost$Type extends MessageType<BlogPost> {
                 case /* repeated blog.BlogSection sections */ 4:
                     message.sections.push(BlogSection.internalBinaryRead(reader, reader.uint32(), options));
                     break;
-                case /* blog.MediaBlock media */ 5:
-                    message.media = MediaBlock.internalBinaryRead(reader, reader.uint32(), options, message.media);
+                case /* blog.NumbersBlock numbers */ 5:
+                    message.numbers = NumbersBlock.internalBinaryRead(reader, reader.uint32(), options, message.numbers);
                     break;
                 case /* blog.Metadata metadata */ 6:
                     message.metadata = Metadata.internalBinaryRead(reader, reader.uint32(), options, message.metadata);
                     break;
-                case /* string publishedAt */ 7:
-                    message.publishedAt = reader.string();
+                case /* google.protobuf.Timestamp publishedAt */ 7:
+                    message.publishedAt = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.publishedAt);
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -423,15 +435,15 @@ class BlogPost$Type extends MessageType<BlogPost> {
         /* repeated blog.BlogSection sections = 4; */
         for (let i = 0; i < message.sections.length; i++)
             BlogSection.internalBinaryWrite(message.sections[i], writer.tag(4, WireType.LengthDelimited).fork(), options).join();
-        /* blog.MediaBlock media = 5; */
-        if (message.media)
-            MediaBlock.internalBinaryWrite(message.media, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* blog.NumbersBlock numbers = 5; */
+        if (message.numbers)
+            NumbersBlock.internalBinaryWrite(message.numbers, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
         /* blog.Metadata metadata = 6; */
         if (message.metadata)
             Metadata.internalBinaryWrite(message.metadata, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
-        /* string publishedAt = 7; */
-        if (message.publishedAt !== "")
-            writer.tag(7, WireType.LengthDelimited).string(message.publishedAt);
+        /* google.protobuf.Timestamp publishedAt = 7; */
+        if (message.publishedAt)
+            Timestamp.internalBinaryWrite(message.publishedAt, writer.tag(7, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

@@ -34,8 +34,8 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
         throw new Error(`Invalid text size: ${size}`);
     }
     const req = Empty.create();
-    const call = grpcMethod(req);
     const start = performance.now();
+    const call = grpcMethod(req);
     const response = await call.response;
     const end = performance.now();
     const content = response.content ?? '';
@@ -61,8 +61,8 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
         throw new Error(`Invalid media type: ${size}`);
     }
     const req = Empty.create();
-    const call = grpcMethod(req);
     const start = performance.now();
+    const call = grpcMethod(req);
     const chunks: Uint8Array[] = [];
     for await (const msg of call.responses) {
       chunks.push(msg.data);
@@ -79,44 +79,54 @@ export async function fetchGrpcWeb(service: string, size: string): Promise<strin
     return `Response Time: ${ (end - start).toFixed(2) } ms\nPayload Size: ${ full.byteLength } bytes\n\nMedia URL: ${ url }`;
   }
 
-// FETCH BLOG
-  if (service === 'blog') {
+  // FETCH BLOG
+  // ##### FETCH BLOG #####
+  if (service.toLowerCase() === 'blog') {
+    const req = Empty.create();
     const start = performance.now();
-    const resp = await blogClient.getAll(Empty.create()).response;
+    const resp = await blogClient.getAll(req).response;
     const end = performance.now();
 
     const posts = resp.posts ?? [];
     const lines: string[] = [];
+
     for (const p of posts) {
       lines.push(`Id: ${p.id}`);
       lines.push(`Title: ${p.title}`);
       if (p.author) lines.push(`Author: ${p.author.name} <${p.author.email}>`);
-      if (p.publishedAt) lines.push(`PublishedAt: ${p.publishedAt}`);
+
+      if (p.publishedAt) {
+  lines.push(`PublishedAt: ${new Date(Number(p.publishedAt.seconds) * 1000).toISOString()}`);
+}
+
+
       if (p.sections) {
         for (const s of p.sections) {
           lines.push(`\n### ${s.heading}`);
           lines.push(s.body);
         }
       }
+
+      if (p.numbers) {
+        lines.push(`\nNumbers:`);
+        lines.push(`  NumberOne: ${p.numbers.numberOne}`);
+        lines.push(`  NumberTwo: ${p.numbers.numberTwo}`);
+        lines.push(`  NumberThree: ${p.numbers.numberThree}`);
+        lines.push(`  NumberFour: ${p.numbers.numberFour}`);
+      }
+
       if (p.metadata) {
         lines.push(`\nMetadata:`);
         lines.push(`  Tags: ${(p.metadata.tags ?? []).join(', ')}`);
         lines.push(`  WordCount: ${p.metadata.wordCount}`);
       }
-      if (p.media) {
-        lines.push(`\nMedia URLs:`);
-        if (p.media.imageUrl) lines.push(`  Image: ${p.media.imageUrl}`);
-        if (p.media.audioUrl) lines.push(`  Audio: ${p.media.audioUrl}`);
-        if (p.media.videoUrl) lines.push(`  Video: ${p.media.videoUrl}`);
-      }
+
       lines.push('\n---');
     }
 
     const content = lines.join('\n');
     const byteSize = new TextEncoder().encode(content).length;
-    return `Response Time: ${(end - start).toFixed(2)} ms\n` +
-           `Payload Size: ${byteSize} bytes\n\n` +
-           content;
+    return `Response Time: ${(end - start).toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\n${content}`;
   }
 
   throw new Error(`Service not implemented: ${service}`);

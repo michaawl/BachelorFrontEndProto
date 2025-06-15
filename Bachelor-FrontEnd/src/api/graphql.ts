@@ -79,15 +79,14 @@ export async function fetchGraphQL(
     body: JSON.stringify({ query: gqlQuery }),
   });
 
-  const end = performance.now();
-
-  const timeInMs = end - start;
-
   if (!response.ok) {
     throw new Error(`GraphQL fetch failed with status ${response.status}`);
   }
 
   const payload = await response.json();
+
+  const end = performance.now();
+  const timeInMs = end - start;
 
   const data = payload.data;
 

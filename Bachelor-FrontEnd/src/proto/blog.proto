@@ -4,6 +4,7 @@ option csharp_namespace = "GrpcWebApi.Protos";
 package blog;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 // Blog Author
 message Author {
@@ -17,11 +18,12 @@ message BlogSection {
   string body = 2;
 }
 
-// Media block with optional URLs
-message MediaBlock {
-  string imageUrl = 1;
-  string audioUrl = 2;
-  string videoUrl = 3;
+// Numbers Block
+message NumbersBlock {
+  int32 numberOne = 1;
+  int32 numberTwo = 2;
+  int32 numberThree = 3;
+  int32 numberFour = 4;
 }
 
 // Metadata
@@ -36,9 +38,9 @@ message BlogPost {
   string title = 2;
   Author author = 3;
   repeated BlogSection sections = 4;
-  MediaBlock media = 5;
+  NumbersBlock numbers = 5; 
   Metadata metadata = 6;
-  string publishedAt = 7; // Use ISO8601 string (or google.protobuf.Timestamp if you want)
+  google.protobuf.Timestamp publishedAt = 7;
 }
 
 // Returns all blog posts

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj": {}
+    "C:\\Users\\micha\\Desktop\\Prototypes\\BachelorFrontEndProto\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj": {}
   },
   "projects": {
-    "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj": {
+    "C:\\Users\\micha\\Desktop\\Prototypes\\BachelorFrontEndProto\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
+        "projectUniqueName": "C:\\Users\\micha\\Desktop\\Prototypes\\BachelorFrontEndProto\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
         "projectName": "ApiBenchmarkClient",
-        "projectPath": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
+        "projectPath": "C:\\Users\\micha\\Desktop\\Prototypes\\BachelorFrontEndProto\\grpc Client\\ApiBenchmarkClient\\ApiBenchmarkClient.csproj",
         "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\micha\\Desktop\\grpc Client\\ApiBenchmarkClient\\obj\\",
+        "outputPath": "C:\\Users\\micha\\Desktop\\Prototypes\\BachelorFrontEndProto\\grpc Client\\ApiBenchmarkClient\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

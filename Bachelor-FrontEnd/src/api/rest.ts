@@ -17,12 +17,8 @@ export async function fetchRest(service: string, size: string): Promise<string |
   }
 
   // Fetch data 
-
   const start = performance.now();
   const response = await fetch(url);
-  const end = performance.now();
-
-  const timeInMs = end - start;
 
   if (!response.ok) {
     throw new Error(`REST fetch failed with status ${response.status}`);
@@ -31,6 +27,9 @@ export async function fetchRest(service: string, size: string): Promise<string |
   /// Parse TEXT
   if (service.toLowerCase() === 'text') {
     const json = await response.json();
+    const end = performance.now();
+
+    const timeInMs = end - start;
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(json.content).length;
 
@@ -39,8 +38,10 @@ export async function fetchRest(service: string, size: string): Promise<string |
 
 // PARSE BLOG
   if (service.toLowerCase() === 'blog') {
-    const startBlog = performance.now();
     const posts: any[] = await response.json();
+    const end = performance.now();
+
+    const timeInMs = end - start;
     const lines: string[] = [];
 
     for (const p of posts) {
@@ -79,9 +80,8 @@ export async function fetchRest(service: string, size: string): Promise<string |
 
     const content = lines.join('\n');
     const byteSize = new TextEncoder().encode(content).length;
-    const blogTime = (performance.now() - startBlog).toFixed(2);
 
-    return `Response Time: ${blogTime} ms\n` +
+    return `Response Time: ${timeInMs} ms\n` +
            `Payload Size: ${byteSize} bytes\n\n` +
            content;
   }
@@ -89,6 +89,10 @@ export async function fetchRest(service: string, size: string): Promise<string |
   /// Parse MEDIA
   const blob = await response.blob();
   const byteSize = blob.size;
+  const end = performance.now();
+
+  const timeInMs = end - start;
+
   const objectUrl = URL.createObjectURL(blob);
 
   return `Response Time: ${timeInMs.toFixed(2)} ms\nPayload Size: ${byteSize} bytes\n\nMedia URL: ${objectUrl}`;
